@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Utama | Sistem Pengingat Tagihan</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Load D3.js for simple chart visualization -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* Mengatur font utama dan gaya scrollbar */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        /* Styling untuk card KPI */
+        .kpi-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease;
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+        }
+        /* Custom scrollbar untuk tabel */
+        .scrollable-table::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scrollable-table::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header / Navbar Top (Hanya contoh, bisa diganti dengan sidebar) -->
+    <header class="bg-white shadow-md p-4 flex justify-between items-center z-10">
+        <div class="text-2xl font-bold text-indigo-700">BILLING DASHBOARD</div>
+        <div class="flex items-center space-x-4">
+            <span class="text-gray-600 hidden sm:inline">Halo, Admin!</span>
+            <button class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm transition duration-150">
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="flex-grow p-4 md:p-8">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Ringkasan Kinerja Penagihan</h1>
+
+        <!-- Bagian 1: KPI Cards (Berdasarkan Modul E: Laporan & Analitik) -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+            <!-- Card 1: Total Tagihan Belum Lunas -->
+            <div class="kpi-card bg-white p-6 rounded-xl border-l-4 border-yellow-500">
+                <p class="text-sm font-medium text-gray-500">Tagihan Belum Lunas</p>
+                <div class="mt-1 flex justify-between items-center">
+                    <span class="text-3xl font-bold text-gray-900">Rp 125.000.000</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2M9 17a1 1 0 100 2h6a1 1 0 100-2H9z" />
+                    </svg>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Dari 85 Debitur</p>
+            </div>
+
+            <!-- Card 2: Tagihan Terlambat (Overdue) -->
+            <div class="kpi-card bg-white p-6 rounded-xl border-l-4 border-red-500">
+                <p class="text-sm font-medium text-gray-500">Jumlah Terlambat (Overdue)</p>
+                <div class="mt-1 flex justify-between items-center">
+                    <span class="text-3xl font-bold text-gray-900">18</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.398 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Total Rp 35.000.000</p>
+            </div>
+
+            <!-- Card 3: Recovery Rate (Persentase Pembayaran Berhasil) -->
+            <div class="kpi-card bg-white p-6 rounded-xl border-l-4 border-green-500">
+                <p class="text-sm font-medium text-gray-500">Recovery Rate (Bulan Ini)</p>
+                <div class="mt-1 flex justify-between items-center">
+                    <span class="text-3xl font-bold text-gray-900">92.5%</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Target: 90%</p>
+            </div>
+
+            <!-- Card 4: Contact Rate (Pesan Terkirim vs Dibalas) -->
+            <div class="kpi-card bg-white p-6 rounded-xl border-l-4 border-blue-500">
+                <p class="text-sm font-medium text-gray-500">Contact Rate (Reminder)</p>
+                <div class="mt-1 flex justify-between items-center">
+                    <span class="text-3xl font-bold text-gray-900">78%</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Pesan dibalas / Terkirim</p>
+            </div>
+        </section>
+
+        <!-- Bagian 2: Grafik Tren dan Detail (60/40 Split) -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Kolom Kiri (2/3): Grafik Tren Pembayaran (Modul E) -->
+            <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Grafik Tren Pembayaran (6 Bulan Terakhir)</h2>
+                <div id="payment-chart" class="w-full h-80">
+                    <!-- Area untuk chart D3 akan dirender di sini -->
+                </div>
+            </div>
+
+            <!-- Kolom Kanan (1/3): Ringkasan Log Pengingat (Modul C) -->
+            <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Ringkasan Log Pengingat Hari Ini</h2>
+                <ul class="space-y-3">
+                    <li class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600">Pesan Friendly Terkirim</span>
+                        <span class="font-bold text-blue-600">45</span>
+                    </li>
+                    <li class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600">Reminder Jatuh Tempo Terkirim</span>
+                        <span class="font-bold text-yellow-600">22</span>
+                    </li>
+                    <li class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600">Overdue Alert Terkirim</span>
+                        <span class="font-bold text-red-600">10</span>
+                    </li>
+                    <li class="flex justify-between items-center text-sm pt-3 border-t">
+                        <span class="text-gray-700 font-semibold">Total Pengiriman Sukses</span>
+                        <span class="font-extrabold text-indigo-700">77</span>
+                    </li>
+                </ul>
+
+                <button onclick="console.log('Redirect to full log')" class="mt-6 w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg text-sm font-semibold transition duration-150">
+                    Lihat Log Lengkap Reminder
+                </button>
+            </div>
+        </section>
+
+        <!-- Bagian 3: Tagihan Mendekati Jatuh Tempo (Modul B) -->
+        <section class="mt-8 bg-white p-6 rounded-xl shadow-md">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
+                Tagihan Mendekati Jatuh Tempo (7 Hari Ke Depan)
+                <a href="Tagihan_manjemen.html" class="text-sm text-indigo-500 hover:text-indigo-700">Lihat Semua Tagihan</a>
+            </h2>
+            <div class="overflow-x-auto scrollable-table max-h-96">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50 sticky top-0">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Invoice</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Debitur</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nominal</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jatuh Tempo</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- Data Baris Contoh -->
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">INV-20251101</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">PT Maju Jaya</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rp 5.000.000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-600 font-semibold">20/11/2025 (4 Hari Lagi)</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Unpaid
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Kirim Reminder</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">INV-20251105</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Bapak Andi</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rp 1.250.000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">17/11/2025 (Sudah Terlambat!)</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    Overdue
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="Janji_bayar.html" class="text-red-600 hover:text-red-900">Buat Janji Bayar</a>
+                            </td>
+                        </tr>
+                        <!-- Tambahkan lebih banyak baris data mock di sini -->
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">INV-20251110</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Toko Sentosa</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rp 800.000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-600 font-semibold">22/11/2025 (6 Hari Lagi)</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Unpaid
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="pengingat_otomatis.html" class="text-indigo-600 hover:text-indigo-900">Kirim Reminder</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Bagian 4: Navigasi Cepat (Quick Access) -->
+        <section class="mt-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Aksi Cepat</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="Debitur_manajemen.html" class="bg-indigo-600 hover:bg-indigo-700 text-white p-5 rounded-xl shadow-lg transition duration-150 flex flex-col items-center justify-center text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M12 20.5v-2.25a1.75 1.75 0 00-1.75-1.75h-2.5a1.75 1.75 0 00-1.75 1.75V20.5m10 0v-2.25a1.75 1.75 0 00-1.75-1.75h-2.5a1.75 1.75 0 00-1.75 1.75V20.5" />
+                    </svg>
+                    <span class="text-sm font-semibold">Kelola Debitur</span>
+                </a>
+                <a href="Tagihan_manjemen.html" class="bg-green-600 hover:bg-green-700 text-white p-5 rounded-xl shadow-lg transition duration-150 flex flex-col items-center justify-center text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span class="text-sm font-semibold">Buat Tagihan Baru</span>
+                </a>
+                <a href="Laporan.html" class="bg-purple-600 hover:bg-purple-700 text-white p-5 rounded-xl shadow-lg transition duration-150 flex flex-col items-center justify-center text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-9v18" />
+                    </svg>
+                    <span class="text-sm font-semibold">Laporan & Analitik</span>
+                </a>
+                 <a href="pengaturan.html" class="bg-gray-600 hover:bg-gray-700 text-white p-5 rounded-xl shadow-lg transition duration-150 flex flex-col items-center justify-center text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                    </svg>
+                    <span class="text-sm font-semibold">Log Audit</span>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (Opsional) -->
+    <footer class="p-4 text-center text-gray-500 text-sm border-t">
+        Sistem Pengingat Tagihan &copy; 2025
+    </footer>
+
+    <!-- Script JavaScript untuk Chart D3.js -->
+    <script>
+        // Data mock untuk grafik tren pembayaran (Modul E)
+        const paymentData = [
+            { month: "Jun '25", amount: 12000000 },
+            { month: "Jul '25", amount: 15500000 },
+            { month: "Agt '25", amount: 14000000 },
+            { month: "Sep '25", amount: 18000000 },
+            { month: "Okt '25", amount: 19500000 },
+            { month: "Nov '25", amount: 22000000 } // Bulan berjalan
+        ];
+
+        // Fungsi untuk merender chart
+        function renderChart() {
+            const container = d3.select("#payment-chart");
+            const width = container.node().clientWidth;
+            const height = container.node().clientHeight;
+            const margin = { top: 20, right: 30, bottom: 40, left: 60 };
+
+            // Hapus chart lama jika ada
+            container.selectAll("*").remove();
+
+            const svg = container.append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            // Skala X: Bulan
+            const x = d3.scaleBand()
+                .domain(paymentData.map(d => d.month))
+                .range([0, chartWidth])
+                .padding(0.3);
+
+            // Skala Y: Jumlah Nominal (Rp)
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(paymentData, d => d.amount) * 1.1]) // Tambah 10% di atas maks
+                .range([chartHeight, 0]);
+
+            // Tambahkan Sumbu X
+            svg.append("g")
+                .attr("transform", `translate(0,${chartHeight})`)
+                .call(d3.axisBottom(x));
+
+            // Tambahkan Sumbu Y
+            svg.append("g")
+                .call(d3.axisLeft(y).tickFormat(d => (d / 1000000) + "Jt")); // Format dalam Jutaan
+
+            // Tooltip sederhana
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "absolute bg-gray-700 text-white p-2 text-xs rounded-md pointer-events-none opacity-0 transition-opacity duration-200")
+                .style("opacity", 0);
+
+            // Tambahkan Bar Chart
+            svg.selectAll(".bar")
+                .data(paymentData)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.month))
+                .attr("y", d => y(d.amount))
+                .attr("width", x.bandwidth())
+                .attr("height", d => chartHeight - y(d.amount))
+                .attr("fill", "#4f46e5") // Warna indigo
+                .attr("rx", 3) // Rounded corners
+                .on("mouseover", function(event, d) {
+                    d3.select(this).attr("fill", "#6366f1"); // Hover effect
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`Bulan: ${d.month}<br>Nominal: Rp ${d.amount.toLocaleString('id-ID')}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    d3.select(this).attr("fill", "#4f46e5"); // Reset color
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+
+             // Label Sumbu Y
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - margin.left)
+                .attr("x", 0 - (chartHeight / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .style("font-size", "12px")
+                .text("Nominal Pembayaran (Juta Rupiah)");
+        }
+
+        // Jalankan chart saat dokumen dimuat
+        window.onload = function() {
+            renderChart();
+        };
+
+        // Buat chart responsif saat ukuran jendela berubah
+        window.addEventListener('resize', () => {
+             // Debouncing untuk mencegah rendering berlebihan saat resize
+             clearTimeout(window.resizeTimer);
+             window.resizeTimer = setTimeout(renderChart, 250);
+        });
+
+    </script>
+</body>
+</html>

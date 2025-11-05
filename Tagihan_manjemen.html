@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Tagihan | Sistem Tagihan</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        /* Transisi untuk modal */
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #94a3b8; /* slate-400 */
+            border-radius: 3px;
+        }
+        .sidebar-link:hover {
+            background-color: #4338ca; /* indigo-700 */
+        }
+        .sidebar-link.active {
+            background-color: #4f46e5; /* indigo-600 */
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="flex h-screen">
+
+    <!-- Sidebar (Navigasi Utama) -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col shadow-lg">
+        <div class="p-6 text-2xl font-bold border-b border-gray-700">
+            SISTEM TAGIHAN
+        </div>
+        <nav class="flex-1 p-4 space-y-2 custom-scrollbar overflow-y-auto">
+            <a href="Main_Dasboard.html" onclick="showAlert('Simulasi Navigasi', 'Ini adalah halaman Dashboard Utama (Modul E).', 'info')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>
+                Dashboard
+            </a>
+            <a href="Debitur_manajemen.html" onclick="showAlert('Simulasi Navigasi', 'Ini adalah halaman Manajemen Debitur (Modul A).', 'info')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="users" class="w-5 h-5 mr-3"></i>
+                Manajemen Debitur
+            </a>
+            <a href="Tagihan_manjemen.html" class="sidebar-link active flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="receipt" class="w-5 h-5 mr-3"></i>
+                Manajemen Tagihan
+            </a>
+            <a href="Janji_bayar.html" onclick="showAlert('Simulasi Navigasi', 'Ini adalah halaman Janji Bayar (Modul F).', 'info')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="calendar-check" class="w-5 h-5 mr-3"></i>
+                Janji Bayar
+            </a>
+            <a href="pengingat_otomatis.html" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="send" class="w-5 h-5 mr-3"></i>
+                Template Reminder
+            </a>
+            <a href="pembayaran.html" onclick="navigate('Pembayaran')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="credit-card" class="w-5 h-5 mr-3"></i>
+                Manajemen Pembayaran
+            </a>
+            <a href="Laporan.html" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="area-chart" class="w-5 h-5 mr-3"></i>
+                Laporan & Analitik
+            </a>
+            <a href="pengaturan.html" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="shield" class="w-5 h-5 mr-3"></i>
+                Keamanan & Role
+            </a>
+        </nav>
+        <div class="p-4 border-t border-gray-700 text-center text-xs text-gray-400">
+            © 2025 Sistem Penagihan
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- Top Header Bar -->
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800">Manajemen Tagihan (Modul B)</h1>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-600 hidden sm:inline">Halo, Admin!</span>
+                <button class="text-gray-500 hover:text-indigo-600">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                </button>
+                <button class="text-gray-500 hover:text-red-600">
+                    <i data-lucide="log-out" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content Area with Scroll -->
+        <main class="flex-1 overflow-y-auto p-6 md:p-8">
+            
+            <!-- Action Bar (Sesuai Modul B) -->
+            <div class="bg-white p-4 rounded-xl shadow-md mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Search -->
+                    <div class="md:col-span-1">
+                        <input type="text" id="search-input" placeholder="Cari No. Invoice / Debitur..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    </div>
+                    <!-- Filter -->
+                    <div class="md:col-span-1">
+                        <select id="filter-status" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition h-full">
+                            <option value="">Semua Status</option>
+                            <option value="Unpaid">Unpaid</option>
+                            <option value="Paid">Paid</option>
+                            <option value="Overdue">Overdue</option>
+                        </select>
+                    </div>
+                    <!-- Tombol Scheduler -->
+                    <div class="md:col-span-1">
+                        <button onclick="simulateScheduler()" class="w-full h-full bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-lg font-semibold transition shadow flex items-center justify-center">
+                            <i data-lucide="clock-4" class="w-5 h-5 mr-2"></i> Buat Tagihan Otomatis
+                        </button>
+                    </div>
+                    <!-- Tombol Tambah Manual -->
+                    <div class="md:col-span-1">
+                        <button onclick="openInvoiceModal()" class="w-full h-full bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-lg font-semibold transition shadow-lg shadow-indigo-500/50 flex items-center justify-center">
+                            <i data-lucide="plus" class="w-5 h-5 mr-2"></i> Buat Tagihan Manual
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invoice Table (Sesuai Modul B) -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nomor Invoice</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Debitur</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nominal Tagihan</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Jatuh Tempo</th>
+                                <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoice-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- JS akan mengisi data di sini -->
+                            <tr>
+                                <td colspan="6" class="p-8 text-center text-gray-500">
+                                    Memuat data tagihan...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="no-data" class="hidden p-8 text-center text-gray-500">
+                    Tidak ada data tagihan yang ditemukan.
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ================== MODALS ================== -->
+
+    <!-- 1. Modal CRUD Tagihan (Modul B: Create/Update) -->
+    <div id="invoice-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl transform transition-transform scale-95" onclick="event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-5 border-b">
+                <h3 id="modal-title" class="text-2xl font-bold text-gray-800">Buat Tagihan Manual</h3>
+                <button onclick="closeInvoiceModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Form (Kolom Penting Modul B) -->
+            <form id="invoice-form" class="p-6 space-y-4">
+                <input type="hidden" id="invoice-id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="debitur-select" class="block text-sm font-medium text-gray-700 mb-1">Debitur <span class="text-red-500">*</span></label>
+                        <select id="debitur-select" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                            <option value="">Pilih Debitur...</option>
+                            <!-- JS akan mengisi daftar debitur di sini -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="invoice-number" class="block text-sm font-medium text-gray-700 mb-1">Nomor Invoice <span class="text-red-500">*</span></label>
+                        <input type="text" id="invoice-number" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-indigo-500" readonly>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="nominal-tagihan" class="block text-sm font-medium text-gray-700 mb-1">Nominal Tagihan (Rp) <span class="text-red-500">*</span></label>
+                        <input type="number" id="nominal-tagihan" placeholder="Contoh: 5000000" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="jatuh-tempo" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Jatuh Tempo <span class="text-red-500">*</span></label>
+                        <input type="date" id="jatuh-tempo" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="status-tagihan" class="block text-sm font-medium text-gray-700 mb-1">Status <span class="text-red-500">*</span></label>
+                    <select id="status-tagihan" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        <option value="Unpaid">Unpaid (Baru Dibuat)</option>
+                        <option value="Paid">Paid (Sudah Lunas)</option>
+                        <option value="Overdue">Overdue (Lewat Tempo)</option>
+                    </select>
+                </div>
+                
+                <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
+                    <p class="text-sm font-semibold text-indigo-700">Modul D: Link Pembayaran</p>
+                    <p class="text-xs text-indigo-600">Link pembayaran (payment gateway) akan digenerate secara otomatis setelah tagihan disimpan.</p>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeInvoiceModal()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold shadow-lg shadow-indigo-500/50">
+                        Simpan Tagihan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Modal Konfirmasi Pembayaran Manual (Modul B: Upload Bukti) -->
+    <div id="upload-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg transform transition-transform scale-95" onclick="event.stopPropagation()">
+            <form id="upload-form">
+                <input type="hidden" id="upload-invoice-id">
+                <div class="flex justify-between items-center p-5 border-b">
+                    <h3 class="text-2xl font-bold text-gray-800">Pembayaran Manual</h3>
+                    <button type="button" onclick="closeUploadModal()" class="text-gray-400 hover:text-gray-600">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-gray-600">Konfirmasi pembayaran lunas untuk tagihan <strong id="upload-invoice-number" class="text-gray-900"></strong> milik <strong id="upload-debtor-name" class="text-gray-900"></strong>.</p>
+                    
+                    <div>
+                        <label for="bukti-bayar-file" class="block text-sm font-medium text-gray-700 mb-1">Upload Bukti Pembayaran (Opsional)</label>
+                        <input type="file" id="bukti-bayar-file" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+
+                    <div>
+                        <label for="catatan-pembayaran" class="block text-sm font-medium text-gray-700 mb-1">Catatan Pembayaran</label>
+                        <textarea id="catatan-pembayaran" rows="2" placeholder="Contoh: Lunas via transfer Bank BCA tgl 20/11/25" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 p-5 bg-gray-50 rounded-b-xl">
+                    <button type="button" onclick="closeUploadModal()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold">
+                        Konfirmasi Lunas
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 3. Modal Konfirmasi Hapus (Sama seperti modul Debitur) -->
+    <div id="confirm-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-transform scale-95" onclick="event.stopPropagation()">
+            <div class="p-6 text-center">
+                <i data-lucide="alert-triangle" class="w-16 h-16 text-red-500 mx-auto mb-4"></i>
+                <h3 class="text-2xl font-bold text-gray-800">Hapus Tagihan?</h3>
+                <p id="confirm-message" class="text-gray-600 my-4">Apakah Anda yakin ingin menghapus tagihan ini? Ini tidak dapat dibatalkan.</p>
+                <div class="flex justify-center space-x-4">
+                    <button type="button" onclick="closeDeleteConfirm()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold">
+                        Batal
+                    </button>
+                    <button type="button" id="delete-confirm-btn" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold">
+                        Ya, Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Modal Alert (Info/Notifikasi) -->
+    <div id="alert-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-transform scale-95" onclick="event.stopPropagation()">
+            <div class="p-6 text-center">
+                <i id="alert-icon" data-lucide="info" class="w-16 h-16 text-blue-500 mx-auto mb-4"></i>
+                <h3 id="alert-title" class="text-2xl font-bold text-gray-800">Notifikasi</h3>
+                <p id="alert-message" class="text-gray-600 my-4">Pesan notifikasi.</p>
+                <div class="flex justify-center">
+                    <button type="button" onclick="closeAlert()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================== SCRIPT JS ================== -->
+    <script>
+        // --- DATA & STATE ---
+        const INVOICE_STORAGE_KEY = 'my_invoice_data';
+        const DEBTOR_STORAGE_KEY = 'my_debtor_data'; // Kunci dari modul A
+        let invoices = [];
+        let debtors = [];
+        let currentFilter = { search: '', status: '' };
+
+        // --- DOM Elements ---
+        const tableBody = document.getElementById('invoice-table-body');
+        const noDataEl = document.getElementById('no-data');
+        const debtorSelect = document.getElementById('debitur-select');
+        const invoiceModal = document.getElementById('invoice-modal');
+        const invoiceForm = document.getElementById('invoice-form');
+        const modalTitle = document.getElementById('modal-title');
+        const uploadModal = document.getElementById('upload-modal');
+        const uploadForm = document.getElementById('upload-form');
+        const confirmModal = document.getElementById('confirm-modal');
+        const alertModal = document.getElementById('alert-modal');
+        const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
+        const searchInput = document.getElementById('search-input');
+        const filterStatus = document.getElementById('filter-status');
+
+        // --- Inisialisasi ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            loadDebtors(); // Muat debitur dulu
+            loadInvoices(); // Muat tagihan
+            attachListeners();
+        });
+
+        function loadDebtors() {
+            const data = localStorage.getItem(DEBTOR_STORAGE_KEY);
+            if (data) {
+                debtors = JSON.parse(data);
+            }
+            // Selalu panggil populate, meskipun kosong
+            populateDebtorDropdown();
+        }
+
+        function populateDebtorDropdown() {
+            debtorSelect.innerHTML = '<option value="">Pilih Debitur...</option>'; // Reset
+            if (debtors.length === 0) {
+                 debtorSelect.innerHTML += '<option value="" disabled>Data Debitur Kosong. Silakan isi di Modul Debitur.</option>';
+            }
+            debtors.forEach(debtor => {
+                if(debtor.status === 'Aktif' || debtor.status === 'Menunggak') {
+                    const option = document.createElement('option');
+                    option.value = debtor.id;
+                    option.textContent = `${debtor.nama} (Status: ${debtor.status})`;
+                    // Simpan data di dataset untuk akses mudah
+                    option.dataset.nama = debtor.nama; 
+                    debtorSelect.appendChild(option);
+                }
+            });
+        }
+
+        function loadInvoices() {
+            const data = localStorage.getItem(INVOICE_STORAGE_KEY);
+            if (data) {
+                invoices = JSON.parse(data);
+            } else {
+                // Buat data awal jika kosong, menggunakan data debitur jika ada
+                const debtor1 = debtors.length > 0 ? debtors[0] : { id: 0, nama: 'Debitur Contoh 1' };
+                const debtor2 = debtors.length > 1 ? debtors[1] : { id: 1, nama: 'Debitur Contoh 2' };
+
+                invoices = [
+                    { id: Date.now() + 1, invoiceNumber: 'INV-2025-001', debtorId: debtor1.id, debtorName: debtor1.nama, nominal: 5000000, tglJatuhTempo: '2025-10-25', status: 'Overdue' },
+                    { id: Date.now() + 2, invoiceNumber: 'INV-2025-002', debtorId: debtor2.id, debtorName: debtor2.nama, nominal: 12000000, tglJatuhTempo: '2025-11-15', status: 'Unpaid' },
+                    { id: Date.now() + 3, invoiceNumber: 'INV-2025-003', debtorId: debtor1.id, debtorName: debtor1.nama, nominal: 2500000, tglJatuhTempo: '2025-10-01', status: 'Paid' },
+                ];
+                saveInvoices();
+            }
+            renderTable();
+        }
+
+        function saveInvoices() {
+            localStorage.setItem(INVOICE_STORAGE_KEY, JSON.stringify(invoices));
+        }
+
+        function attachListeners() {
+            invoiceForm.addEventListener('submit', handleInvoiceFormSubmit);
+            uploadForm.addEventListener('submit', handleUploadSubmit);
+            
+            searchInput.addEventListener('input', () => {
+                currentFilter.search = searchInput.value.toLowerCase();
+                renderTable();
+            });
+            filterStatus.addEventListener('change', () => {
+                currentFilter.status = filterStatus.value;
+                renderTable();
+            });
+        }
+
+        // --- RENDER TABLE ---
+        function renderTable() {
+            tableBody.innerHTML = ''; // Kosongkan tabel
+            
+            const filteredInvoices = invoices.filter(inv => {
+                const searchMatch = (
+                    inv.invoiceNumber.toLowerCase().includes(currentFilter.search) ||
+                    inv.debtorName.toLowerCase().includes(currentFilter.search)
+                );
+                const statusMatch = (
+                    currentFilter.status === '' || 
+                    inv.status === currentFilter.status
+                );
+                return searchMatch && statusMatch;
+            });
+
+            if (filteredInvoices.length === 0) {
+                noDataEl.classList.remove('hidden');
+                return;
+            }
+            
+            noDataEl.classList.add('hidden');
+
+            filteredInvoices.forEach(invoice => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition duration-150';
+                
+                const statusBadge = getStatusBadge(invoice.status);
+                const isPaid = invoice.status === 'Paid';
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-gray-900">${invoice.invoiceNumber}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-700">${invoice.debtorName}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-gray-800">Rp ${invoice.nominal.toLocaleString('id-ID')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm ${statusBadge.textColor}">${invoice.tglJatuhTempo}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusBadge.classes}">
+                            ${statusBadge.icon} ${invoice.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                        ${!isPaid ? `
+                            <button onclick="simulateSendReminder('${invoice.id}')" class="text-yellow-600 hover:text-yellow-800 transition" title="Kirim Reminder (Modul C)">
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                            </button>
+                            <button onclick="simulateViewPaymentLink('${invoice.id}')" class="text-blue-600 hover:text-blue-800 transition" title="Lihat Link Pembayaran (Modul D)">
+                                <i data-lucide="link" class="w-5 h-5"></i>
+                            </button>
+                            <button onclick="openUploadModal('${invoice.id}')" class="text-green-600 hover:text-green-800 transition" title="Tandai Lunas Manual (Modul B)">
+                                <i data-lucide="check-check" class="w-5 h-5"></i>
+                            </button>
+                        ` : `
+                            <button onclick="showAlert('Detail Pembayaran', 'Tagihan ${invoice.invoiceNumber} Lunas. ${invoice.catatan_pembayaran || 'Dibayar via Payment Gateway.'}', 'success')" class="text-green-600 hover:text-green-800 transition" title="Lihat Detail Pembayaran">
+                                <i data-lucide="eye" class="w-5 h-5"></i>
+                            </button>
+                        `}
+                        <button onclick="openInvoiceModal('${invoice.id}')" class="text-indigo-600 hover:text-indigo-900 transition" title="Edit Tagihan">
+                            <i data-lucide="edit-2" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="openDeleteConfirm('${invoice.id}', '${invoice.invoiceNumber}')" class="text-red-600 hover:text-red-900 transition" title="Hapus Tagihan">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+            
+            lucide.createIcons(); // Render ikon baru di dalam tabel
+        }
+
+        // --- MODAL & CRUD FUNCTIONS ---
+
+        // Buka Modal Tagihan (Create/Update)
+        window.openInvoiceModal = (id = null) => {
+            invoiceForm.reset();
+            const modalScale = invoiceModal.querySelector('div');
+            
+            if (id) {
+                // Mode Edit (Update)
+                const invoice = invoices.find(inv => inv.id == id);
+                if (invoice) {
+                    modalTitle.textContent = 'Edit Tagihan';
+                    document.getElementById('invoice-id').value = invoice.id;
+                    document.getElementById('debitur-select').value = invoice.debtorId;
+                    document.getElementById('invoice-number').value = invoice.invoiceNumber;
+                    document.getElementById('nominal-tagihan').value = invoice.nominal;
+                    document.getElementById('jatuh-tempo').value = invoice.tglJatuhTempo;
+                    document.getElementById('status-tagihan').value = invoice.status;
+                }
+            } else {
+                // Mode Tambah (Create)
+                modalTitle.textContent = 'Buat Tagihan Manual';
+                document.getElementById('invoice-id').value = ''; 
+                // Generate Nomor Invoice Unik (Sesuai Modul B)
+                document.getElementById('invoice-number').value = `INV-${Date.now()}`;
+                // Set default jatuh tempo (misal 14 hari dari sekarang)
+                const today = new Date();
+                today.setDate(today.getDate() + 14);
+                document.getElementById('jatuh-tempo').value = today.toISOString().split('T')[0];
+            }
+            
+            invoiceModal.classList.add('visible');
+            invoiceModal.classList.remove('hidden');
+            setTimeout(() => modalScale.classList.add('scale-100'), 10); // Animasi masuk
+        }
+
+        window.closeInvoiceModal = () => {
+            const modalScale = invoiceModal.querySelector('div');
+            modalScale.classList.remove('scale-100');
+            setTimeout(() => invoiceModal.classList.add('hidden'), 300); // Animasi keluar
+        }
+
+        // Handle Submit Form Tagihan (Create/Update)
+        function handleInvoiceFormSubmit(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('invoice-id').value;
+            const selectedDebtorOption = debtorSelect.options[debtorSelect.selectedIndex];
+            
+            if (!selectedDebtorOption.value) {
+                showAlert('Validasi Gagal', 'Anda harus memilih Debitur terlebih dahulu.', 'error');
+                return;
+            }
+
+            const invoiceData = {
+                invoiceNumber: document.getElementById('invoice-number').value,
+                debtorId: selectedDebtorOption.value,
+                debtorName: selectedDebtorOption.dataset.nama, // Ambil nama dari dataset
+                nominal: parseInt(document.getElementById('nominal-tagihan').value),
+                tglJatuhTempo: document.getElementById('jatuh-tempo').value,
+                status: document.getElementById('status-tagihan').value,
+            };
+
+            if (id) {
+                // Update
+                const index = invoices.findIndex(inv => inv.id == id);
+                if (index > -1) {
+                    invoices[index] = { ...invoices[index], ...invoiceData };
+                }
+            } else {
+                // Create
+                invoiceData.id = Date.now(); 
+                invoices.push(invoiceData);
+            }
+            
+            saveInvoices();
+            renderTable();
+            closeInvoiceModal();
+            showAlert('Sukses', 'Data tagihan berhasil disimpan.', 'success');
+        }
+
+        // Buka Modal Upload Bukti Bayar (Modul B)
+        window.openUploadModal = (id) => {
+            const invoice = invoices.find(inv => inv.id == id);
+            if (!invoice) return;
+            
+            uploadForm.reset();
+            document.getElementById('upload-invoice-id').value = id;
+            document.getElementById('upload-invoice-number').textContent = invoice.invoiceNumber;
+            document.getElementById('upload-debtor-name').textContent = invoice.debtorName;
+
+            const modalScale = uploadModal.querySelector('div');
+            uploadModal.classList.add('visible');
+            uploadModal.classList.remove('hidden');
+            setTimeout(() => modalScale.classList.add('scale-100'), 10);
+        }
+
+        window.closeUploadModal = () => {
+            const modalScale = uploadModal.querySelector('div');
+            modalScale.classList.remove('scale-100');
+            setTimeout(() => uploadModal.classList.add('hidden'), 300);
+        }
+
+        // Handle Submit Upload (Menandai Lunas)
+        function handleUploadSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('upload-invoice-id').value;
+            const catatan = document.getElementById('catatan-pembayaran').value;
+            const fileInput = document.getElementById('bukti-bayar-file').files[0];
+            
+            const index = invoices.findIndex(inv => inv.id == id);
+            if (index > -1) {
+                invoices[index].status = 'Paid';
+                // Simpan catatan pembayaran (simulasi)
+                invoices[index].catatan_pembayaran = `(Manual) ${catatan || 'Lunas dikonfirmasi Admin'}`;
+                if (fileInput) {
+                     invoices[index].catatan_pembayaran += ` [File: ${fileInput.name}]`;
+                }
+            }
+
+            saveInvoices();
+            renderTable();
+            closeUploadModal();
+            showAlert('Pembayaran Dikonfirmasi', `Tagihan ${invoices[index].invoiceNumber} telah ditandai LUNAS.`, 'success');
+        }
+
+
+        // --- DELETE LOGIC ---
+        window.openDeleteConfirm = (id, name) => {
+            const modalScale = confirmModal.querySelector('div');
+            document.getElementById('confirm-message').textContent = `Apakah Anda yakin ingin menghapus tagihan "${name}"? Aksi ini tidak dapat dibatalkan.`;
+            deleteConfirmBtn.onclick = () => handleDelete(id);
+            
+            confirmModal.classList.add('visible');
+            confirmModal.classList.remove('hidden');
+            setTimeout(() => modalScale.classList.add('scale-100'), 10);
+        }
+
+        window.closeDeleteConfirm = () => {
+            const modalScale = confirmModal.querySelector('div');
+            modalScale.classList.remove('scale-100');
+            setTimeout(() => confirmModal.classList.add('hidden'), 300);
+        }
+
+        function handleDelete(id) {
+            invoices = invoices.filter(inv => inv.id != id);
+            saveInvoices();
+            renderTable();
+            closeDeleteConfirm();
+            showAlert('Data Dihapus', 'Data tagihan telah berhasil dihapus.', 'success');
+        }
+
+        // --- SIMULASI MODUL LAIN (C, D, F) ---
+        window.simulateScheduler = () => {
+            // Modul B: Otomatis
+            showAlert('Simulasi Scheduler (Modul B)', 'Ini akan memicu Laravel Scheduler + Job Queue untuk membuat tagihan bulanan secara otomatis untuk semua debitur aktif.', 'info');
+        }
+        window.simulateSendReminder = (id) => {
+            // Modul C: Reminder
+            const invoice = invoices.find(inv => inv.id == id);
+            showAlert('Simulasi Reminder (Modul C)', `Akan mengirim pengingat via WA & Email untuk tagihan ${invoice.invoiceNumber} (Debitur: ${invoice.debtorName}) dengan template ${invoice.status}.`, 'info');
+        }
+        window.simulateViewPaymentLink = (id) => {
+            // Modul D: Payment Link
+            const invoice = invoices.find(inv => inv.id == id);
+            showAlert('Simulasi Payment Gateway (Modul D)', `Link Pembayaran Unik: https://payment.app/pay/${invoice.invoiceNumber}?token=xyz123abc`, 'info');
+        }
+        // Modul F (Janji Bayar) akan ditangani di halaman terpisah
+        
+        // --- HELPER FUNCTIONS ---
+
+        // Untuk Alert
+        window.showAlert = (title, message, type = 'info') => {
+            const modalScale = alertModal.querySelector('div');
+            const iconEl = document.getElementById('alert-icon');
+            
+            document.getElementById('alert-title').textContent = title;
+            document.getElementById('alert-message').textContent = message;
+
+            iconEl.classList.remove('text-blue-500', 'text-green-500', 'text-red-500');
+            if (type === 'success') {
+                iconEl.setAttribute('data-lucide', 'check-circle');
+                iconEl.classList.add('text-green-500');
+            } else if (type === 'error') {
+                iconEl.setAttribute('data-lucide', 'x-circle');
+                iconEl.classList.add('text-red-500');
+            } else {
+                iconEl.setAttribute('data-lucide', 'info');
+                iconEl.classList.add('text-blue-500');
+            }
+            lucide.createIcons(); // Render ulang ikon
+
+            alertModal.classList.add('visible');
+            alertModal.classList.remove('hidden');
+            setTimeout(() => modalScale.classList.add('scale-100'), 10);
+        }
+
+        window.closeAlert = () => {
+            const modalScale = alertModal.querySelector('div');
+            modalScale.classList.remove('scale-100');
+            setTimeout(() => alertModal.classList.add('hidden'), 300);
+        }
+
+        // Untuk Status Badge
+        function getStatusBadge(status) {
+            // Modul B: Status (unpaid, paid, overdue)
+            switch (status) {
+                case 'Paid':
+                    return { classes: 'bg-green-100 text-green-800', icon: '&#10003;', textColor: 'text-green-600' };
+                case 'Overdue':
+                    return { classes: 'bg-red-100 text-red-800', icon: '&#33;', textColor: 'text-red-600' };
+                case 'Unpaid':
+                    return { classes: 'bg-yellow-100 text-yellow-800', icon: '&#9200;', textColor: 'text-yellow-600' };
+                default:
+                    return { classes: 'bg-gray-100 text-gray-700', icon: '', textColor: 'text-gray-500' };
+            }
+        }
+
+        // Event listener untuk menutup modal saat klik di luar area
+        document.getElementById('invoice-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'invoice-modal') closeInvoiceModal();
+        });
+        document.getElementById('upload-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'upload-modal') closeUploadModal();
+        });
+        document.getElementById('confirm-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'confirm-modal') closeDeleteConfirm();
+        });
+        document.getElementById('alert-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'alert-modal') closeAlert();
+        });
+
+    </script>
+</body>
+</html>

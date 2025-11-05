@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Janji Bayar | Sistem Tagihan</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        /* Transisi untuk modal */
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #94a3b8; /* slate-400 */
+            border-radius: 3px;
+        }
+        .sidebar-link:hover {
+            background-color: #4338ca; /* indigo-700 */
+        }
+        .sidebar-link.active {
+            background-color: #4f46e5; /* indigo-600 */
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="flex h-screen">
+
+    <!-- Sidebar (Navigasi Utama) -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col shadow-lg">
+        <div class="p-6 text-2xl font-bold border-b border-gray-700">
+            SISTEM TAGIHAN
+        </div>
+        <nav class="flex-1 p-4 space-y-2 custom-scrollbar overflow-y-auto">
+            <a href="Main_Dasboard.html" onclick="navigate('Dashboard')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>
+                Dashboard
+            </a>
+            <a href="Debitur_manajemen.html" onclick="navigate('Debitur')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="users" class="w-5 h-5 mr-3"></i>
+                Manajemen Debitur
+            </a>
+            <a href="Tagihan_manjemen.html" onclick="navigate('Tagihan')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="receipt" class="w-5 h-5 mr-3"></i>
+                Manajemen Tagihan
+            </a>
+            <a href="Janji_bayar.html" class="sidebar-link active flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="calendar-check" class="w-5 h-5 mr-3"></i>
+                Janji Bayar
+            </a>
+            <a href="pengingat_otomatis.html" onclick="navigate('Reminder')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="send" class="w-5 h-5 mr-3"></i>
+                Template Reminder
+            </a>
+            <a href="pembayaran.html" onclick="navigate('Pembayaran')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="credit-card" class="w-5 h-5 mr-3"></i>
+                Manajemen Pembayaran
+            </a>
+            <a href="Laporan.html" onclick="navigate('Laporan')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="area-chart" class="w-5 h-5 mr-3"></i>
+                Laporan & Analitik
+            </a>
+            <a href="pembayaran.html" onclick="navigate('Keamanan')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="shield" class="w-5 h-5 mr-3"></i>
+                Keamanan & Role
+            </a>
+        </nav>
+        <div class="p-4 border-t border-gray-700 text-center text-xs text-gray-400">
+            © 2025 Sistem Penagihan
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- Top Header Bar -->
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800">Manajemen Janji Bayar (Modul F)</h1>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-600 hidden sm:inline">Halo, Admin!</span>
+                <button class="text-gray-500 hover:text-indigo-600">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content Area with Scroll -->
+        <main class="flex-1 overflow-y-auto p-6 md:p-8">
+            
+            <!-- Action Bar -->
+            <div class="bg-white p-4 rounded-xl shadow-md mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Search -->
+                    <div class="md:col-span-2">
+                        <input type="text" id="search-input" placeholder="Cari No. Invoice / Debitur..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    </div>
+                    <!-- Filter -->
+                    <div class="md:col-span-1">
+                        <select id="filter-status" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition h-full">
+                            <option value="">Semua Status Janji</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Ditepati">Ditepati (Lunas)</option>
+                            <option value="Gagal">Gagal (Mengingkari)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Promise Table (Sesuai Modul F) -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nomor Invoice</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Debitur</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nominal Janji</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tanggal Janji Bayar</th>
+                                <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status Janji</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">History Interaksi Terakhir</th>
+                                <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="promise-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- JS akan mengisi data di sini -->
+                            <tr>
+                                <td colspan="7" class="p-8 text-center text-gray-500">
+                                    Memuat data janji bayar...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="no-data" class="hidden p-8 text-center text-gray-500">
+                    Tidak ada data janji bayar yang ditemukan.
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ================== MODALS ================== -->
+
+    <!-- 1. Modal Ubah Status Janji Bayar (Modul F) -->
+    <div id="status-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg transform transition-transform scale-95" onclick="event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-5 border-b">
+                <h3 class="text-2xl font-bold text-gray-800">Ubah Status Janji Bayar</h3>
+                <button onclick="closeStatusModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Form -->
+            <form id="status-form" class="p-6 space-y-4">
+                <input type="hidden" id="promise-id-status">
+                
+                <p class="text-gray-600">Anda akan mengubah status untuk: <strong id="status-invoice-number" class="text-gray-900"></strong></p>
+
+                <div>
+                    <label for="new-status" class="block text-sm font-medium text-gray-700 mb-1">Status Janji Baru <span class="text-red-500">*</span></label>
+                    <select id="new-status" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                        <option value="Pending">Pending (Menunggu tanggal janji)</option>
+                        <option value="Ditepati">Ditepati (Debitur sudah bayar)</option>
+                        <option value="Gagal">Gagal (Debitur mengingkari janji)</option>
+                    </select>
+                </div>
+                
+                <!-- Sesuai Modul F: Catat history interaksi -->
+                <div>
+                    <label for="history-note-status" class="block text-sm font-medium text-gray-700 mb-1">Catatan Interaksi (Opsional)</label>
+                    <textarea id="history-note-status" rows="3" placeholder="Contoh: Debitur konfirmasi pembayaran via WA..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeStatusModal()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold shadow-lg shadow-indigo-500/50">
+                        Simpan Status
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Modal History Interaksi (Modul F) -->
+    <div id="history-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl transform transition-transform scale-95" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center p-5 border-b">
+                <h3 class="text-2xl font-bold text-gray-800">History Interaksi Janji Bayar</h3>
+                <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <p class="text-gray-600 mb-4">Mencatat semua interaksi terkait Janji Bayar untuk: <strong id="history-invoice-number" class="text-gray-900"></strong></p>
+
+                <!-- Daftar History -->
+                <div class="max-h-60 overflow-y-auto custom-scrollbar border rounded-lg p-4 bg-gray-50 mb-4 space-y-4" id="history-list">
+                    <!-- JS akan mengisi history di sini -->
+                    <p>Memuat history...</p>
+                </div>
+                
+                <!-- Form Tambah Catatan Manual (Sesuai Modul F) -->
+                <form id="history-form" class="space-y-3">
+                    <input type="hidden" id="promise-id-history">
+                    <div>
+                        <label for="history-note-new" class="block text-sm font-medium text-gray-700 mb-1">Tambah Catatan Interaksi Baru</label>
+                        <textarea id="history-note-new" rows="3" placeholder="Contoh: Dihubungi via WA, debitur minta tambahan waktu 2 hari..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold">
+                            Tambah Catatan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Modal Alert (Info/Notifikasi) -->
+    <div id="alert-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-transform scale-95" onclick="event.stopPropagation()">
+            <div class="p-6 text-center">
+                <i id="alert-icon" data-lucide="info" class="w-16 h-16 text-blue-500 mx-auto mb-4"></i>
+                <h3 id="alert-title" class="text-2xl font-bold text-gray-800">Notifikasi</h3>
+                <p id="alert-message" class="text-gray-600 my-4">Pesan notifikasi.</p>
+                <div class="flex justify-center">
+                    <button type="button" onclick="closeAlert()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================== SCRIPT JS ================== -->
+    <script>
+        // --- DATA & STATE ---
+        const JANJI_BAYAR_STORAGE_KEY = 'my_janji_bayar_data';
+        let promises = [];
+        let currentFilter = { search: '', status: '' };
+
+        // --- DOM Elements ---
+        const tableBody = document.getElementById('promise-table-body');
+        const noDataEl = document.getElementById('no-data');
+        const statusModal = document.getElementById('status-modal');
+        const statusForm = document.getElementById('status-form');
+        const historyModal = document.getElementById('history-modal');
+        const historyForm = document.getElementById('history-form');
+        const historyListEl = document.getElementById('history-list');
+        const alertModal = document.getElementById('alert-modal');
+        const searchInput = document.getElementById('search-input');
+        const filterStatus = document.getElementById('filter-status');
+
+        // --- Inisialisasi ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            loadPromises(); // Muat data janji bayar
+            attachListeners();
+        });
+
+        function loadPromises() {
+            const data = localStorage.getItem(JANJI_BAYAR_STORAGE_KEY);
+            if (data) {
+                promises = JSON.parse(data);
+            } else {
+                // Buat data awal jika kosong (Sesuai Modul F)
+                promises = [
+                    { 
+                        id: Date.now() + 1, 
+                        invoiceNumber: 'INV-2025-001', 
+                        debtorName: 'Bpk. Surya Utama', 
+                        nominal_janji: 5000000, 
+                        tgl_janji_bayar: '2025-11-10', 
+                        status: 'Pending', 
+                        history: [
+                            { date: '2025-11-05 10:30', note: 'Debitur mengirimkan janji bayar via link.', user: 'Debitur' }
+                        ]
+                    },
+                    { 
+                        id: Date.now() + 2, 
+                        invoiceNumber: 'INV-2025-002', 
+                        debtorName: 'CV. Makmur Sentosa', 
+                        nominal_janji: 7000000, 
+                        tgl_janji_bayar: '2025-11-12', 
+                        status: 'Gagal', 
+                        history: [
+                            { date: '2025-11-01 09:00', note: 'Debitur mengirimkan janji bayar via link.', user: 'Debitur' },
+                            { date: '2025-11-13 10:00', note: 'Tanggal janji bayar terlewat. Status diubah ke Gagal.', user: 'Sistem' },
+                            { date: '2025-11-13 10:01', note: 'Reminder "Overdue" kedua dikirim.', user: 'Sistem' }
+                        ]
+                    },
+                    { 
+                        id: Date.now() + 3, 
+                        invoiceNumber: 'INV-2025-003', 
+                        debtorName: 'PT. Abadi Jaya', 
+                        nominal_janji: 2500000, 
+                        tgl_janji_bayar: '2025-11-01', 
+                        status: 'Ditepati', 
+                        history: [
+                            { date: '2025-10-30 14:00', note: 'Debitur janji bayar via WA ke Admin.', user: 'Admin' },
+                            { date: '2025-11-01 11:00', note: 'Pembayaran Lunas diterima. Status diubah ke Ditepati.', user: 'Admin' }
+                        ]
+                    },
+                ];
+                savePromises();
+            }
+            renderTable();
+        }
+
+        function savePromises() {
+            localStorage.setItem(JANJI_BAYAR_STORAGE_KEY, JSON.stringify(promises));
+        }
+
+        function attachListeners() {
+            statusForm.addEventListener('submit', handleStatusFormSubmit);
+            historyForm.addEventListener('submit', handleHistoryFormSubmit);
+            
+            searchInput.addEventListener('input', () => {
+                currentFilter.search = searchInput.value.toLowerCase();
+                renderTable();
+            });
+            filterStatus.addEventListener('change', () => {
+                currentFilter.status = filterStatus.value;
+                renderTable();
+            });
+        }
+
+        // --- RENDER TABLE ---
+        function renderTable() {
+            tableBody.innerHTML = ''; // Kosongkan tabel
+            
+            const filteredPromises = promises.filter(p => {
+                const searchMatch = (
+                    p.invoiceNumber.toLowerCase().includes(currentFilter.search) ||
+                    p.debtorName.toLowerCase().includes(currentFilter.search)
+                );
+                const statusMatch = (
+                    currentFilter.status === '' || 
+                    p.status === currentFilter.status
+                );
+                return searchMatch && statusMatch;
+            });
+
+            if (filteredPromises.length === 0) {
+                noDataEl.classList.remove('hidden');
+                return;
+            }
+            
+            noDataEl.classList.add('hidden');
+
+            filteredPromises.forEach(promise => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition duration-150';
+                
+                const statusBadge = getStatusBadge(promise.status);
+                // Ambil history terakhir (Sesuai Modul F)
+                const lastHistory = promise.history[promise.history.length - 1];
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-gray-900">${promise.invoiceNumber}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-700">${promise.debtorName}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-green-700">Rp ${promise.nominal_janji.toLocaleString('id-ID')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-bold text-indigo-700">${promise.tgl_janji_bayar}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusBadge.classes}">
+                            ${promise.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate" title="${lastHistory.note}">
+                        <span class="font-semibold text-gray-700">[${lastHistory.user}]</span> ${lastHistory.note}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                        <button onclick="openHistoryModal('${promise.id}')" class="text-blue-600 hover:text-blue-800 transition" title="Lihat History Interaksi (Modul F)">
+                            <i data-lucide="history" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="openStatusModal('${promise.id}')" class="text-indigo-600 hover:text-indigo-900 transition" title="Ubah Status Janji">
+                            <i data-lucide="edit-2" class="w-5 h-5"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+            
+            lucide.createIcons(); // Render ikon baru di dalam tabel
+        }
+
+        // --- MODAL & CRUD FUNCTIONS (Modul F) ---
+
+        // Buka Modal Ubah Status
+        window.openStatusModal = (id) => {
+            const promise = promises.find(p => p.id == id);
+            if (!promise) return;
+
+            document.getElementById('promise-id-status').value = id;
+            document.getElementById('status-invoice-number').textContent = promise.invoiceNumber;
+            document.getElementById('new-status').value = promise.status;
+            document.getElementById('history-note-status').value = ''; // Kosongkan catatan
+
+            const modalScale = statusModal.querySelector('div');
+            statusModal.classList.add('visible');
+            statusModal.classList.remove('hidden');
+            setTimeout(() => modalScale.classList.add('scale-100'), 10);
+        }
+
+        window.closeStatusModal = () => {
+            const modalScale = statusModal.querySelector('div');
+            modalScale.classList.remove('scale-100');
+            setTimeout(() => statusModal.classList.add('hidden'), 300);
+        }
+
+        // Handle Submit Ubah Status (Catat history interaksi)
+        function handleStatusFormSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('promise-id-status').value;
+            const newStatus = document.getElementById('new-status').value;
+            const newNote = document.getElementById('history-note-status').value;
+            
+            const index = promises.findIndex(p => p.id == id);
+            if (index > -1) {
+                promises[index].status = newStatus;
+                
+                // Modul F: Catat history interaksi
+                const note = newNote || `Status diubah ke "${newStatus}" oleh Admin.`;
+                promises[index].history.push({
+                    date: new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString('it-IT'),
+                    note: note,
+                    user: 'Admin'
+                });
+                
+                savePromises();
+                renderTable();
+                closeStatusModal();
+                showAlert('Sukses', `Status Janji Bayar untuk ${promises[index].invoiceNumber} telah diubah.`, 'success');
+            }
+        }
+        
+        // Buka Modal History
+        window.openHistoryModal = (id) => {
+            const promise = promises.find(p => p.id == id);
+            if (!promise) return;
+
+            document.getElementById('promise-id-history').value = id;
+            document.getElementById('history-invoice-number').textContent = promise.invoiceNumber;
+            document.getElementById('history-note-new').value = ''; // Kosongkan form
+
+            // Render daftar history (Modul F)
+            historyListEl.innerHTML = '';
+            if (promise.history.length === 0) {
+                 historyListEl.innerHTML = '<p class="text-gray-500 italic">Belum ada history interaksi.</p>';
+            }
+            
+            // Urutkan dari terbaru ke terlama
+            [...promise.history].reverse().forEach(log => {
+                historyListEl.innerHTML += `
+                    <div class="border-b pb-3 mb-3">
+                        <p class="text-sm text-gray-800">${log.note}</p>
+                        <p class="text-xs text-gray-500 mt-1">Oleh: <strong class="text-gray-600">${log.user}</strong> | Pada: ${log.date}</p>
+                    </div>
+                `;
+            });
+
+
+            const modalScale = historyModal.querySelector('div');
+            historyModal.classList.add('visible');
+            historyModal.classList.remove('hidden');
+            setTimeout(() => modalScale.classList.add('scale-100'), 10);
+        }
+
+        window.closeHistoryModal = () => {
+            const modalScale = historyModal.querySelector('div');
+            modalScale.classList.remove('scale-100');
+            setTimeout(() => historyModal.classList.add('hidden'), 300);
+        }
+        
+        // Handle Submit Catatan History Baru
+        function handleHistoryFormSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('promise-id-history').value;
+            const newNote = document.getElementById('history-note-new').value;
+
+            const index = promises.findIndex(p => p.id == id);
+            if (index > -1 && newNote) {
+                promises[index].history.push({
+                    date: new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString('it-IT'),
+                    note: newNote,
+                    user: 'Admin'
+                });
+                
+                savePromises();
+                renderTable(); // Update tabel (untuk kolom 'history terakhir')
+                openHistoryModal(id); // Buka ulang modal history (untuk refresh list)
+                showAlert('Sukses', 'Catatan interaksi baru telah ditambahkan.', 'success');
+            }
+        }
+
+
+        // --- HELPER FUNCTIONS ---
+
+        // Untuk Alert
+        window.showAlert = (title, message, type = 'info') => {
+            const modalScale = alertModal.querySelector('div');
+            const iconEl = document.getElementById('alert-icon');
+            
+            document.getElementById('alert-title').textContent = title;
+            document.getElementById('alert-message').textContent = message;
+
+            iconEl.classList.remove('text-blue-500', 'text-green-500', 'text-red-500');
+            if (type === 'success') {
+                iconEl.setAttribute('data-lucide', 'check-circle');
+                iconEl.classList.add('text-green-500');
+            } else if (type === 'error') {
+                iconEl.setAttribute('data-lucide', 'x-circle');
+                iconEl.classList.add('text-red-500');
+            } else {
+                iconEl.setAttribute('data-lucide', 'info');
+                iconEl.classList.add('text-blue-500');
+            }
+            lucide.createIcons(); // Render ulang ikon
+
+            alertModal.classList.add('visible');
+            alertModal.classList.remove('hidden');
+            setTimeout(() => modalScale.classList.add('scale-100'), 10);
+        }
+
+        window.closeAlert = () => {
+            const modalScale = alertModal.querySelector('div');
+            modalScale.classList.remove('scale-100');
+            setTimeout(() => alertModal.classList.add('hidden'), 300);
+        }
+
+        // Untuk Status Badge
+        function getStatusBadge(status) {
+            switch (status) {
+                case 'Ditepati': // Janji ditepati / Lunas
+                    return { classes: 'bg-green-100 text-green-800' };
+                case 'Gagal': // Janji diingkari
+                    return { classes: 'bg-red-100 text-red-800' };
+                case 'Pending': // Menunggu janji
+                    return { classes: 'bg-yellow-100 text-yellow-800' };
+                default:
+                    return { classes: 'bg-gray-100 text-gray-700' };
+            }
+        }
+        
+        // Untuk Navigasi Sidebar (Simulasi)
+        window.navigate = (page) => {
+            showAlert('Simulasi Navigasi', `Anda akan diarahkan ke halaman ${page}.`, 'info');
+        }
+
+        // Event listener untuk menutup modal saat klik di luar area
+        document.getElementById('status-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'status-modal') closeStatusModal();
+        });
+        document.getElementById('history-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'history-modal') closeHistoryModal();
+        });
+        document.getElementById('alert-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'alert-modal') closeAlert();
+        });
+
+    </script>
+</body>
+</html>

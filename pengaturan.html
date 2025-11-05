@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keamanan & Role | Sistem Tagihan</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Load Litepicker (Untuk Filter Tanggal Modul G) -->
+    <script src="https://cdn.jsdelivr.net/npm/litepicker@2.0.12/dist/litepicker.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker@2.0.12/dist/css/litepicker.css"/>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        /* Transisi untuk modal */
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #94a3b8; /* slate-400 */
+            border-radius: 3px;
+        }
+        .sidebar-link:hover {
+            background-color: #4338ca; /* indigo-700 */
+        }
+        .sidebar-link.active {
+            background-color: #4f46e5; /* indigo-600 */
+            font-weight: 600;
+        }
+        /* Styling untuk Tab */
+        .tab-btn {
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            border-bottom-color: #4f46e5; /* indigo-600 */
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Styling untuk Toggle Switch */
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #4f46e5; /* indigo-600 */
+        }
+        .toggle-checkbox:checked + .toggle-label::after {
+            transform: translateX(100%);
+        }
+        /* Kustomisasi Litepicker */
+        .litepicker {
+            z-index: 50 !important;
+        }
+    </style>
+</head>
+<body class="flex h-screen">
+
+    <!-- Sidebar (Navigasi Utama) -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col shadow-lg">
+        <div class="p-6 text-2xl font-bold border-b border-gray-700">
+            SISTEM TAGIHAN
+        </div>
+        <nav class="flex-1 p-4 space-y-2 custom-scrollbar overflow-y-auto">
+            <a href="Main_Dasboard.html" onclick="navigate('Dashboard')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>
+                Dashboard
+            </a>
+            <a href="Debitur_manajemen.html" onclick="navigate('Debitur')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="users" class="w-5 h-5 mr-3"></i>
+                Manajemen Debitur
+            </a>
+            <a href="Tagihan_manjemen.html" onclick="navigate('Tagihan')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="receipt" class="w-5 h-5 mr-3"></i>
+                Manajemen Tagihan
+            </a>
+            <a href="Janji_bayar.html" onclick="navigate('JanjiBayar')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="calendar-check" class="w-5 h-5 mr-3"></i>
+                Janji Bayar
+            </a>
+            <a href="pengingat_otomatis.html" onclick="navigate('Reminder')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="send" class="w-5 h-5 mr-3"></i>
+                Template Reminder
+            </a>
+            <a href="pembayaran.html" onclick="navigate('Pembayaran')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="credit-card" class="w-5 h-5 mr-3"></i>
+                Manajemen Pembayaran
+            </a>
+            <a href="Laporan.html" onclick="navigate('Laporan')" class="sidebar-link flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="area-chart" class="w-5 h-5 mr-3"></i>
+                Laporan & Analitik
+            </a>
+            <a href="pengaturan.html" class="sidebar-link active flex items-center p-3 rounded-lg transition duration-200">
+                <i data-lucide="shield" class="w-5 h-5 mr-3"></i>
+                Keamanan & Role
+            </a>
+        </nav>
+        <div class="p-4 border-t border-gray-700 text-center text-xs text-gray-400">
+            © 2025 Sistem Penagihan
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- Top Header Bar -->
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800">Pengaturan Sistem (Modul G)</h1>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-600 hidden sm:inline">Halo, Admin!</span>
+                <button class="text-gray-500 hover:text-indigo-600">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content Area with Scroll -->
+        <main class="flex-1 overflow-y-auto p-6 md:p-8">
+
+            <!-- Navigasi Tab -->
+            <div class="mb-6 border-b border-gray-200">
+                <nav class="flex space-x-6" aria-label="Tabs">
+                    <button id="tab-btn-1" onclick="switchTab(1)" class="tab-btn active py-3 px-1 text-gray-500 hover:text-indigo-600">
+                        Manajemen Pengguna & Role (RBAC)
+                    </button>
+                    <button id="tab-btn-2" onclick="switchTab(2)" class="tab-btn py-3 px-1 text-gray-500 hover:text-indigo-600">
+                        Audit Log
+                    </button>
+                    <button id="tab-btn-3" onclick="switchTab(3)" class="tab-btn py-3 px-1 text-gray-500 hover:text-indigo-600">
+                        Pengaturan Keamanan (2FA)
+                    </button>
+                </nav>
+            </div>
+
+            <!-- ============================================= -->
+            <!-- Tab 1: Manajemen Pengguna & Role (Modul G) -->
+            <!-- ============================================= -->
+            <div id="tab-content-1" class="tab-content active">
+                <div class="flex justify-between items-center mb-6">
+                    <p class="text-gray-600">Kelola siapa saja yang dapat mengakses sistem dan apa yang dapat mereka lakukan.</p>
+                    <button onclick="openUserModal(null)" class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-lg font-semibold transition shadow-lg shadow-indigo-500/50 flex items-center justify-center">
+                        <i data-lucide="user-plus" class="w-5 h-5 mr-2"></i> Tambah Pengguna Baru
+                    </button>
+                </div>
+
+                <!-- Tabel Pengguna (Sesuai Modul G - RBAC) -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Pengguna</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status 2FA</th>
+                                    <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- JS akan mengisi data pengguna di sini -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =================================== -->
+            <!-- Tab 2: Audit Log (Modul G) -->
+            <!-- =================================== -->
+            <div id="tab-content-2" class="tab-content">
+                <p class="text-gray-600 mb-6">Mencatat semua perubahan data penting di dalam sistem: siapa, kapan, dan apa yang dilakukan (Sesuai Modul G).</p>
+                
+                <!-- Filter Log -->
+                <div class="bg-white p-4 rounded-xl shadow-md mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input id="log-date-filter" placeholder="Pilih rentang tanggal..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        <select id="log-user-filter" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 h-[42px]">
+                            <option value="">Semua Petugas</option>
+                            <!-- JS akan mengisi daftar petugas di sini -->
+                        </select>
+                        <select id="log-action-filter" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 h-[42px]">
+                            <option value="">Semua Aksi</option>
+                            <option value="CREATE">CREATE</option>
+                            <option value="UPDATE">UPDATE</option>
+                            <option value="DELETE">DELETE</option>
+                            <option value="LOGIN">LOGIN</option>
+                        </select>
+                        <button id="log-filter-button" class="w-full h-[42px] bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg font-semibold transition flex items-center justify-center">
+                            <i data-lucide="filter" class="w-5 h-5 mr-2"></i> Terapkan Filter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabel Log -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Kapan (Waktu)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Siapa (Petugas)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Apa (Aksi)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Detail Perubahan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-log-body" class="bg-white divide-y divide-gray-200">
+                                <!-- JS akan mengisi log audit di sini -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================================== -->
+            <!-- Tab 3: Pengaturan Keamanan (Modul G) -->
+            <!-- ======================================== -->
+            <div id="tab-content-3" class="tab-content">
+                <form id="security-settings-form">
+                    <div class="bg-white p-6 rounded-xl shadow-md max-w-2xl mx-auto">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Pengaturan Keamanan Sistem</h3>
+                        
+                        <!-- 2FA (Modul G) -->
+                        <div class="mb-6 p-4 border rounded-lg bg-gray-50">
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <div>
+                                    <span class="font-bold text-lg text-gray-700">Wajibkan 2FA (Google Authenticator)</span>
+                                    <p class="text-sm text-gray-500">Jika aktif, semua pengguna (Admin & Petugas) harus mengaktifkan 2FA saat login.</p>
+                                </div>
+                                <input type="checkbox" id="setting-2fa" class="toggle-checkbox hidden">
+                                <div class="toggle-label relative w-12 h-6 bg-gray-300 rounded-full cursor-pointer transition-colors duration-300 ease-in-out after:content-[''] after:absolute after:w-5 after:h-5 after:bg-white after:rounded-full after:shadow-md after:top-0.5 after:left-0.5 after:transition-transform after:duration-300"></div>
+                            </label>
+                        </div>
+                        
+                        <!-- Enkripsi Data (Modul G) -->
+                        <div class="mb-6 p-4 border rounded-lg bg-gray-50">
+                            <h4 class="font-bold text-lg text-gray-700">Enkripsi Data Sensitif</h4>
+                            <p class="text-sm text-gray-500 mb-3">Sistem secara otomatis mengenkripsi data sensitif di database.</p>
+                            <div class="bg-green-100 border border-green-300 text-green-800 p-3 rounded-md flex items-center">
+                                <i data-lucide="lock" class="w-5 h-5 mr-3"></i>
+                                <span class="text-sm font-semibold">Status: AKTIF (Nomor WA, Email, dan API Key dienkripsi).</span>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Simpan -->
+                        <div class="mt-8 flex justify-end">
+                             <button type="submit" class="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold shadow-lg shadow-indigo-500/50 flex items-center">
+                                <i data-lucide="save" class="w-5 h-5 mr-2"></i> Simpan Pengaturan
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ================== MODALS ================== -->
+
+    <!-- 1. Modal Tambah/Edit Pengguna (Modul G - RBAC) -->
+    <div id="user-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg transform transition-transform scale-95" onclick="event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-5 border-b">
+                <h3 id="user-modal-title" class="text-2xl font-bold text-gray-800">Tambah Pengguna Baru</h3>
+                <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Form -->
+            <form id="user-form" class="p-6 space-y-4">
+                <input type="hidden" id="user-id">
+                
+                <div>
+                    <label for="user-name" class="block text-sm font-medium text-gray-700 mb-1">Nama Pengguna <span class="text-red-500">*</span></label>
+                    <input type="text" id="user-name" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                
+                <div>
+                    <label for="user-email" class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                    <input type="email" id="user-email" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+
+                <div>
+                    <label for="user-role" class="block text-sm font-medium text-gray-700 mb-1">Role (RBAC) <span class="text-red-500">*</span></label>
+                    <select id="user-role" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                        <option value="Petugas">Petugas (Akses Terbatas)</option>
+                        <option value="Admin">Admin (Akses Penuh)</option>
+                    </select>
+                </div>
+                
+                <p class="text-xs text-gray-500 italic">Pengguna baru akan menerima undangan via email untuk mengatur password dan 2FA (jika diwajibkan).</p>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeUserModal()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold">
+                        Batal
+                    </button>
+                    <button type="submit" id="user-form-button" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold shadow-lg shadow-indigo-500/50">
+                        Kirim Undangan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Modal Konfirmasi Hapus -->
+    <div id="confirm-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-transform scale-95" onclick="event.stopPropagation()">
+            <div class="p-6 text-center">
+                <i data-lucide="alert-triangle" class="w-16 h-16 text-red-500 mx-auto mb-4"></i>
+                <h3 class="text-2xl font-bold text-gray-800">Anda Yakin?</h3>
+                <p id="confirm-message" class="text-gray-600 my-4">Aksi ini tidak dapat dibatalkan.</p>
+                <div class="flex justify-center space-x-4">
+                    <button type="button" onclick="closeConfirmModal()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold">
+                        Batal
+                    </button>
+                    <button type="button" id="confirm-delete-button" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold">
+                        Ya, Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Modal Alert (Info/Notifikasi) -->
+    <div id="alert-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-transform scale-95" onclick="event.stopPropagation()">
+            <div class="p-6 text-center">
+                <i id="alert-icon" data-lucide="info" class="w-16 h-16 text-blue-500 mx-auto mb-4"></i>
+                <h3 id="alert-title" class="text-2xl font-bold text-gray-800">Notifikasi</h3>
+                <p id="alert-message" class="text-gray-600 my-4">Pesan notifikasi.</p>
+                <div class="flex justify-center">
+                    <button type="button" onclick="closeAlert()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================== SCRIPT JS ================== -->
+    <script>
+        // --- DATA & STATE ---
+        const USER_STORAGE_KEY = 'my_user_roles_data';
+        const SETTINGS_STORAGE_KEY_SEC = 'my_security_settings';
+        
+        let users = [];
+        let securitySettings = { enforce2FA: false };
+        let deleteUserId = null;
+
+        // Mock Data untuk Audit Log (Modul G)
+        const mockAuditLogs = [
+            { id: 1, date: '2025-11-04 10:30:00', user: 'Admin (admin@sistem.com)', action: 'UPDATE', detail: 'Role untuk "Petugas A" diubah dari Petugas ke Admin.' },
+            { id: 2, date: '2025-11-04 10:01:00', user: 'Petugas A (petugas.a@sistem.com)', action: 'CREATE', detail: 'Tagihan INV-2025-004 (PT. Abadi Jaya) dibuat.' },
+            { id: 3, date: '2025-11-04 09:30:00', user: 'Sistem', action: 'LOGIN', detail: 'Admin (admin@sistem.com) berhasil login.' },
+            { id: 4, date: '2025-11-03 15:00:00', user: 'Petugas A (petugas.a@sistem.com)', action: 'DELETE', detail: 'Debitur "CV. Karya Mundur" dihapus.' },
+            { id: 5, date: '2025-11-03 14:00:00', user: 'Admin (admin@sistem.com)', action: 'UPDATE', detail: 'Template Reminder "Overdue" diperbarui.' },
+        ];
+        
+        // --- DOM Elements ---
+        const alertModal = document.getElementById('alert-modal');
+        const userModal = document.getElementById('user-modal');
+        const userForm = document.getElementById('user-form');
+        const userTableBody = document.getElementById('user-table-body');
+        const confirmModal = document.getElementById('confirm-modal');
+        const securitySettingsForm = document.getElementById('security-settings-form');
+        const auditLogBody = document.getElementById('audit-log-body');
+        const logUserFilter = document.getElementById('log-user-filter');
+
+        // --- Inisialisasi ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            
+            // Inisialisasi Filter Tanggal Audit Log (Modul G)
+            const logPicker = new Litepicker({
+                element: document.getElementById('log-date-filter'),
+                singleMode: false,
+                format: 'DD MMM YYYY',
+            });
+            
+            loadUsers();
+            loadSecuritySettings();
+            renderAuditLogTable(mockAuditLogs); // Render log awal
+            
+            attachListeners();
+        });
+
+        function loadUsers() {
+            const data = localStorage.getItem(USER_STORAGE_KEY);
+            if (data) {
+                users = JSON.parse(data);
+            } else {
+                // Buat data awal jika kosong (Sesuai Modul G - RBAC)
+                users = [
+                    { id: Date.now(), name: 'Admin Utama', email: 'admin@sistem.com', role: 'Admin', status2FA: 'Aktif' },
+                    { id: Date.now() + 1, name: 'Petugas A', email: 'petugas.a@sistem.com', role: 'Petugas', status2FA: 'Non-Aktif' },
+                ];
+                saveUsers();
+            }
+            renderUserTable();
+            updateLogUserFilter(); // Update dropdown filter di Audit Log
+        }
+
+        function saveUsers() {
+            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(users));
+        }
+
+        function loadSecuritySettings() {
+            const data = localStorage.getItem(SETTINGS_STORAGE_KEY_SEC);
+            if (data) {
+                securitySettings = JSON.parse(data);
+            }
+            // Terapkan ke UI (Modul G - 2FA)
+            document.getElementById('setting-2fa').checked = securitySettings.enforce2FA;
+        }
+
+        function saveSecuritySettings() {
+            localStorage.setItem(SETTINGS_STORAGE_KEY_SEC, JSON.stringify(securitySettings));
+        }
+
+        function attachListeners() {
+            userForm.addEventListener('submit', handleUserFormSubmit);
+            document.getElementById('confirm-delete-button').addEventListener('click', () => {
+                handleUserDelete(deleteUserId);
+            });
+            securitySettingsForm.addEventListener('submit', handleSecuritySettingsSave);
+            document.getElementById('log-filter-button').addEventListener('click', handleLogFilter);
+        }
+
+        // --- TAB SWITCHING ---
+        function switchTab(tabIndex) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-content-${tabIndex}`).classList.add('active');
+            document.getElementById(`tab-btn-${tabIndex}`).classList.add('active');
+        }
+
+        // --- LOGIC MANAJEMEN PENGGUNA (Modul G - RBAC) ---
+        function renderUserTable() {
+            userTableBody.innerHTML = ''; // Kosongkan tabel
+
+            if (users.length === 0) {
+                userTableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Belum ada pengguna terdaftar.</td></tr>`;
+                return;
+            }
+
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition';
+                
+                const roleBadge = user.role === 'Admin' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-700';
+                const statusBadge = user.status2FA === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-gray-900">${user.name}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${user.email}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${roleBadge}">
+                            ${user.role}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusBadge}">
+                            ${user.status2FA}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                        <button onclick="openUserModal('${user.id}')" class="text-indigo-600 hover:text-indigo-900 transition" title="Edit Role">
+                            <i data-lucide="edit-2" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="showAlert('Reset 2FA', 'Simulasi: Link reset 2FA telah dikirim ke ${user.email}.', 'success')" class="text-yellow-600 hover:text-yellow-800 transition" title="Reset 2FA (Modul G)">
+                            <i data-lucide="smartphone-key" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="confirmDeleteUser('${user.id}', '${user.name}')" class="text-red-600 hover:text-red-800 transition" title="Hapus Pengguna">
+                            <i data-lucide="user-minus" class="w-5 h-5"></i>
+                        </button>
+                    </td>
+                `;
+                userTableBody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+        
+        window.openUserModal = (id) => {
+            const modalTitle = document.getElementById('user-modal-title');
+            const formButton = document.getElementById('user-form-button');
+            userForm.reset();
+            document.getElementById('user-id').value = '';
+
+            if (id) {
+                // Edit Mode
+                const user = users.find(u => u.id == id);
+                if (!user) return;
+                modalTitle.textContent = 'Edit Pengguna';
+                formButton.textContent = 'Simpan Perubahan';
+                document.getElementById('user-id').value = user.id;
+                document.getElementById('user-name').value = user.name;
+                document.getElementById('user-email').value = user.email;
+                document.getElementById('user-role').value = user.role;
+                document.getElementById('user-email').disabled = true; // Email tidak bisa diubah
+            } else {
+                // Tambah Mode
+                modalTitle.textContent = 'Tambah Pengguna Baru';
+                formButton.textContent = 'Kirim Undangan';
+                document.getElementById('user-email').disabled = false;
+            }
+
+            const modalScale = userModal.querySelector('div');
+            userModal.classList.add('visible');
+            userModal.classList.remove('hidden');
+            setTimeout(() => modalScale.classList.add('scale-100'), 10);
+        }
+
+        window.closeUserModal = () => {
+            const modalScale = userModal.querySelector('div');
+            modalScale.classList.remove('scale-100');
+            setTimeout(() => userModal.classList.add('hidden'), 300);
+        }
+        
+        function handleUserFormSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('user-id').value;
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value;
+            const role = document.getElementById('user-role').value;
+
+            if (id) {
+                // Edit
+                const index = users.findIndex(u => u.id == id);
+                if (index > -1) {
+                    users[index].name = name;
+                    users[index].role = role;
+                }
+                showAlert('Sukses', `Data pengguna ${name} telah diperbarui.`, 'success');
+            } else {
+                // Tambah Baru
+                const newUser = {
+                    id: Date.now(),
+                    name: name,
+                    email: email,
+                    role: role,
+                    status2FA: 'Non-Aktif' // Default untuk user baru
+                };
+                users.push(newUser);
+                showAlert('Sukses', `Undangan telah dikirim ke ${email}.`, 'success');
+            }
+            
+            saveUsers();
+            renderUserTable();
+            updateLogUserFilter();
+            closeUserModal();
+        }
+
+        window.confirmDeleteUser = (id, name) => {
+            deleteUserId = id;
+            document.getElementById('confirm-message').textContent = `Anda yakin ingin menghapus pengguna "${name}"? Aksi ini tidak dapat dibatalkan.`;
+            
+            const modalScale = confirmModal.querySelector('div');
+            confirmModal.classList.add('visible');
+            confirmModal.classList.remove('hidden');
+            setTimeout(() => modalScale.classList.add('scale-100'), 10);
+        }
+        
+        window.closeConfirmModal = () => {
+            const modalScale = confirmModal.querySelector('div');
+            modalScale.classList.remove('scale-100');
+            setTimeout(() => confirmModal.classList.add('hidden'), 300);
+        }
+
+        function handleUserDelete(id) {
+            users = users.filter(u => u.id != id);
+            saveUsers();
+            renderUserTable();
+            updateLogUserFilter();
+            closeConfirmModal();
+            showAlert('Sukses', 'Pengguna telah dihapus.', 'success');
+            deleteUserId = null;
+        }
+
+        // --- LOGIC AUDIT LOG (Modul G) ---
+        function renderAuditLogTable(logs) {
+            auditLogBody.innerHTML = '';
+            
+            if (logs.length === 0) {
+                auditLogBody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-500">Tidak ada data log yang sesuai.</td></tr>`;
+                return;
+            }
+
+            logs.forEach(log => {
+                const tr = document.createElement('tr');
+                let actionBadge = 'bg-gray-100 text-gray-700';
+                if(log.action === 'CREATE') actionBadge = 'bg-green-100 text-green-800';
+                if(log.action === 'UPDATE') actionBadge = 'bg-yellow-100 text-yellow-800';
+                if(log.action === 'DELETE') actionBadge = 'bg-red-100 text-red-800';
+                
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${log.date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">${log.user}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${actionBadge}">
+                            ${log.action}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-700">${log.detail}</td>
+                `;
+                auditLogBody.appendChild(tr);
+            });
+        }
+        
+        function updateLogUserFilter() {
+            logUserFilter.innerHTML = '<option value="">Semua Petugas</option>'; // Reset
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.email;
+                option.textContent = user.name;
+                logUserFilter.appendChild(option);
+            });
+        }
+        
+        function handleLogFilter() {
+            // Simulasi filter
+            showAlert('Filter Diterapkan', 'Simulasi: Memuat ulang log audit berdasarkan filter yang dipilih.', 'info');
+            // Logika filter data mock (sederhana)
+            const userFilter = document.getElementById('log-user-filter').value;
+            const actionFilter = document.getElementById('log-action-filter').value;
+            
+            const filteredLogs = mockAuditLogs.filter(log => {
+                const userMatch = !userFilter || log.user.includes(userFilter);
+                const actionMatch = !actionFilter || log.action === actionFilter;
+                return userMatch && actionMatch;
+            });
+            renderAuditLogTable(filteredLogs);
+        }
+
+        // --- LOGIC PENGATURAN KEAMANAN (Modul G) ---
+        function handleSecuritySettingsSave(e) {
+            e.preventDefault();
+            securitySettings.enforce2FA = document.getElementById('setting-2fa').checked;
+            saveSecuritySettings();
+            showAlert('Sukses', 'Pengaturan keamanan telah disimpan.', 'success');
+        }
+
+
+        // --- HELPER FUNCTIONS ---
+
+        // Untuk Alert
+        window.showAlert = (title, message, type = 'info')
+        window.closeAlert = () => {
+            const modalScale = alertModal.querySelector('div');
+            modalScale.classList.remove('scale-100');
+            setTimeout(() => alertModal.classList.add('hidden'), 300);
+        }
+        
+        // Untuk Navigasi Sidebar (Simulasi)
+        window.navigate = (page) => {
+            showAlert('Simulasi Navigasi', `Anda akan diarahkan ke halaman ${page}.`, 'info');
+        }
+
+        // Event listener untuk menutup modal saat klik di luar area
+        document.getElementById('user-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'user-modal') closeUserModal();
+        });
+        document.getElementById('confirm-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'confirm-modal') closeConfirmModal();
+        });
+        document.getElementById('alert-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'alert-modal') closeAlert();
+        });
+
+    </script>
+</body>
+</html>
